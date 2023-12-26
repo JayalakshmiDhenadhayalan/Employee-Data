@@ -30,12 +30,19 @@ GetEmployeeData?  _employeeList ;
     }
   }
 
-  Future addtoSubmit(BuildContext context) async{
+  Future addtoSubmit(BuildContext context,String empName,
+  int empSalary,int empAge) async{
 
     final url='https://dummy.restapiexample.com/api/v1/create';
-
+ final body = {
+      "name": empName,
+      "salary": empSalary,
+      "age": empAge,
+    };
     final response=await http.post(Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
+      body: json.encode(body)
+     
       );
       notifyListeners();
       if(response.statusCode==200){

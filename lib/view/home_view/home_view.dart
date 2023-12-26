@@ -79,7 +79,9 @@ class HomeView extends StatelessWidget {
                           alignment: Alignment.center,
                           child: ElevatedButton(
                               onPressed: () {
-                                controller.addtoSubmit(context);
+                                controller.addtoSubmit(context,
+                                nameController.text,
+                                salaryController.text);
                                 Navigator.pop(context);
                               },
                               child: Text('Submit'))),
