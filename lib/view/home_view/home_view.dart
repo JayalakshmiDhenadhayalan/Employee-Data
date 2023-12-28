@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:sampleemployee/controller/getdata_controller.dart';
 
@@ -28,7 +29,7 @@ class HomeView extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('ADD DATA'),
+                    title: const Text('ADD DATA'),
                     content: SizedBox(
                       height: 200,
                       child: Column(
@@ -39,7 +40,7 @@ class HomeView extends StatelessWidget {
                             // Adjust the height as needed
                             child: TextField(
                               controller: nameController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: "Employee Name",
                                 border: OutlineInputBorder(),
                               ),
@@ -52,7 +53,7 @@ class HomeView extends StatelessWidget {
                             height: 50.0, // Adjust the height as needed
                             child: TextField(
                               controller: salaryController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: "Employee Salary",
                                 border: OutlineInputBorder(),
                               ),
@@ -65,7 +66,7 @@ class HomeView extends StatelessWidget {
                             height: 50.0, // Adjust the height as needed
                             child: TextField(
                               controller: ageController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: "Employee Age",
                                 border: OutlineInputBorder(),
                               ),
@@ -79,19 +80,42 @@ class HomeView extends StatelessWidget {
                           alignment: Alignment.center,
                           child: ElevatedButton(
                               onPressed: () {
-                                controller.addtoSubmit(context,
-                                nameController.text,
-                                salaryController.text);
-                                Navigator.pop(context);
+                                if (nameController.text != null &&
+                                    nameController.text.isNotEmpty &&
+                                    ageController.text != null &&
+                                    ageController.text.isNotEmpty &&
+                                    salaryController.text != null &&
+                                    salaryController.text.isNotEmpty) {
+                                  int salary = int.parse(salaryController.text);
+                                  int? age = int.parse(ageController.text);
+                                  if (salary != null && age != null) {
+                                    controller.addtoSubmit(context,
+                                        nameController.text, salary, age);
+                                    Navigator.pop(context);
+                                    //   print("successfully added  ${controller.message}");
+                                    Fluttertoast.showToast(
+                                        msg: controller.message,
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                    nameController.clear();
+                                    ageController.clear();
+                                    salaryController.clear();
+                                  } else {
+                                    print("its null");
+                                  }
+                                }
                               },
-                              child: Text('Submit'))),
-                   
+                              child: const Text('Submit'))),
                     ],
                   );
                 },
               );
             },
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.only(right: 25),
               child: Icon(
                 Icons.add,
@@ -126,13 +150,136 @@ class HomeView extends StatelessWidget {
                     crossAxisSpacing: 10.w,
                     childAspectRatio: 157 / 202,
                   ),
-                  itemCount: value.employeeList?.data.length,
+                  itemCount: value.employedata.length,
                   itemBuilder: (BuildContext context, int index) {
-                    var employee = value.employeeList?.data[index];
+                    var employee = value.employedata[index];
                     return employeeWidget(
-                      text: employee!.employeeName.toString(),
+                      text: employee.employeeName.toString(),
                       salary: employee.employeeSalary,
                       age: employee.employeeAge,
+                      editontapped: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('EDIT DATA'),
+                              content: SizedBox(
+                                height: 200,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 50.0,
+
+                                      // Adjust the height as needed
+                                      child: TextField(
+                                        controller: nameController,
+                                        decoration: const InputDecoration(
+                                          hintText: "Employee Name",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10.h,
+                                    ),
+                                    Container(
+                                      height:
+                                          50.0, // Adjust the height as needed
+                                      child: TextField(
+                                        controller: salaryController,
+                                        decoration: const InputDecoration(
+                                          hintText: "Employee Salary",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10.h,
+                                    ),
+                                    Container(
+                                      height:
+                                          50.0, // Adjust the height as needed
+                                      child: TextField(
+                                        controller: ageController,
+                                        decoration: const InputDecoration(
+                                          hintText: "Employee Age",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                Align(
+                                    alignment: Alignment.center,
+                                    child: ElevatedButton(
+                                        onPressed: () async{
+                                          if (nameController.text != null &&
+                                              nameController.text.isNotEmpty &&
+                                              ageController.text != null &&
+                                              ageController.text.isNotEmpty &&
+                                              salaryController.text != null &&
+                                              salaryController
+                                                  .text.isNotEmpty) {
+                                            int salary = int.parse(
+                                                salaryController.text);
+                                            int? age =
+                                                int.parse(ageController.text);
+                                            if (salary != null && age != null) {
+                                              int employeeId = employee.id;
+
+                                              // Updated data for the employee
+                                              Map<String, dynamic> updatedData =
+                                                  {
+                                                "name": nameController.text,
+                                                // Replace with your updated data
+                                                "salary": salaryController.text,
+                                                "age": ageController.text,
+                                              };
+                                              // Update the employee data using the provider
+                                             await value.updateEmployee(
+                                                  employeeId, updatedData);
+
+                                              Navigator.pop(context);
+                                               print("======${controller.updateMsg}");
+                                              //   print("successfully added  ${controller.message}");
+                                              Fluttertoast.showToast(
+                                                  msg: controller.updateMsg,
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor: Colors.red,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0);
+                                              nameController.clear();
+                                              ageController.clear();
+                                              salaryController.clear();
+                                            } else {
+                                              print("its null");
+                                            }
+                                          }
+                                        },
+                                        child: const Text('Submit'))),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      deleteonTapped: () async{
+                        int employeeId = employee.id;
+                       await value.deleteData(employeeId);
+                        //print("======${controller.deleteMsg}");
+                        Fluttertoast.showToast(
+                            msg: controller.deleteMsg,
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      },
                     );
                   },
                 ),
@@ -151,10 +298,14 @@ class employeeWidget extends StatelessWidget {
     required this.text,
     required this.salary,
     required this.age,
+    required this.editontapped,
+    required this.deleteonTapped,
   });
   final String text;
   final num salary;
   final num age;
+  final Function() editontapped;
+  final Function() deleteonTapped;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,16 +331,22 @@ class employeeWidget extends StatelessWidget {
                   )),
               Column(
                 children: [
-                  Icon(
-                    Icons.edit,
-                    color: Colors.black,
+                  InkWell(
+                    onTap: editontapped,
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.black,
+                    ),
                   ),
                   SizedBox(
                     height: 20.h,
                   ),
-                  Icon(
-                    Icons.delete,
-                    color: Colors.black,
+                  InkWell(
+                    onTap: deleteonTapped,
+                    child: const Icon(
+                      Icons.delete,
+                      color: Colors.black,
+                    ),
                   ),
                 ],
               )

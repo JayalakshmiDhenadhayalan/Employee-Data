@@ -21,7 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           Provider.of<getController>(context, listen: false)
-        .getEmployeeData(context);
+        .getEmployeeData();
+       
 
    
     });
